@@ -46,6 +46,7 @@ export default function DoctorWorkspace() {
   const [rxForm, setRxForm] = useState({ medicineName: "", dosage: "", instructions: "" });
   const [treatForm, setTreatForm] = useState({ procedure: "", toothNumber: "", status: "planned", cost: "" });
   const [fuDate, setFuDate] = useState("");
+  const [fuNotes, setFuNotes] = useState("");
 
   const selectedPatient = patients?.find((p) => p.id === selectedPatientId);
 
@@ -155,9 +156,24 @@ export default function DoctorWorkspace() {
                 </TabsContent>
 
                 <TabsContent value="followup" className="mt-3 space-y-3">
-                  <form onSubmit={(e) => { e.preventDefault(); createFu.mutate({ data: { patientId: selectedPatientId!, scheduledDate: fuDate } }, { onSuccess: () => { toast({ title: "Follow-up scheduled" }); setFuDate(""); queryClient.invalidateQueries({ queryKey: getListFollowupsQueryKey({ patientId: selectedPatientId! }) }); }, onError: () => toast({ title: "Failed", variant: "destructive" }) }); }} className="space-y-2">
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    createFu.mutate(
+                      { data: { patientId: selectedPatientId!, scheduledDate: fuDate, notes: fuNotes || undefined } },
+                      {
+                        onSuccess: () => {
+                          toast({ title: "Follow-up scheduled" });
+                          setFuDate("");
+                          setFuNotes("");
+                          queryClient.invalidateQueries({ queryKey: getListFollowupsQueryKey({ patientId: selectedPatientId! }) });
+                        },
+                        onError: () => toast({ title: "Failed", variant: "destructive" }),
+                      }
+                    );
+                  }} className="space-y-2">
                     <div><Label className="text-xs">Scheduled Date *</Label><Input type="date" value={fuDate} onChange={(e) => setFuDate(e.target.value)} required /></div>
-                    <Button type="submit" size="sm" disabled={createFu.isPending}>Schedule</Button>
+                    <div><Label className="text-xs">Notes</Label><Input value={fuNotes} onChange={(e) => setFuNotes(e.target.value)} placeholder="Reason for follow-up..." /></div>
+                    <Button type="submit" size="sm" disabled={createFu.isPending || !fuDate}>Schedule Follow-up</Button>
                   </form>
                 </TabsContent>
               </Tabs>
