@@ -1,107 +1,17 @@
 import { useState } from "react";
-import { useListPatients, useCreatePatient, getListPatientsQueryKey } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { useListPatients, getListPatientsQueryKey } from "@workspace/api-client-react";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, User } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-
-function RegisterPatientDialog({ onSuccess }: { onSuccess: () => void }) {
-  const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ fullName: "", age: "", gender: "male", contactNumber: "", email: "", address: "", emergencyContact: "", emergencyPhone: "", bloodGroup: "" });
-  const create = useCreatePatient();
-  const { toast } = useToast();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    create.mutate(
-      { data: { fullName: form.fullName, age: parseInt(form.age), gender: form.gender as any, contactNumber: form.contactNumber, email: form.email || undefined, address: form.address || undefined, emergencyContact: form.emergencyContact || undefined, emergencyPhone: form.emergencyPhone || undefined, bloodGroup: form.bloodGroup || undefined } },
-      {
-        onSuccess: () => {
-          toast({ title: "Patient registered successfully" });
-          setOpen(false);
-          setForm({ fullName: "", age: "", gender: "male", contactNumber: "", email: "", address: "", emergencyContact: "", emergencyPhone: "", bloodGroup: "" });
-          onSuccess();
-        },
-        onError: () => toast({ title: "Failed to register patient", variant: "destructive" }),
-      }
-    );
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button data-testid="button-register-patient"><Plus className="h-4 w-4 mr-1" />Register Patient</Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-lg">
-        <DialogHeader><DialogTitle>Register New Patient</DialogTitle></DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-3 mt-2">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2 space-y-1">
-              <Label>Full Name *</Label>
-              <Input data-testid="input-fullname" value={form.fullName} onChange={(e) => setForm(f => ({ ...f, fullName: e.target.value }))} required />
-            </div>
-            <div className="space-y-1">
-              <Label>Age *</Label>
-              <Input data-testid="input-age" type="number" value={form.age} onChange={(e) => setForm(f => ({ ...f, age: e.target.value }))} required min={1} max={120} />
-            </div>
-            <div className="space-y-1">
-              <Label>Gender *</Label>
-              <Select value={form.gender} onValueChange={(v) => setForm(f => ({ ...f, gender: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label>Contact Number *</Label>
-              <Input data-testid="input-contact" value={form.contactNumber} onChange={(e) => setForm(f => ({ ...f, contactNumber: e.target.value }))} required />
-            </div>
-            <div className="space-y-1">
-              <Label>Blood Group</Label>
-              <Input value={form.bloodGroup} onChange={(e) => setForm(f => ({ ...f, bloodGroup: e.target.value }))} placeholder="e.g. O+" />
-            </div>
-            <div className="col-span-2 space-y-1">
-              <Label>Email</Label>
-              <Input type="email" value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))} />
-            </div>
-            <div className="col-span-2 space-y-1">
-              <Label>Address</Label>
-              <Input value={form.address} onChange={(e) => setForm(f => ({ ...f, address: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label>Emergency Contact</Label>
-              <Input value={form.emergencyContact} onChange={(e) => setForm(f => ({ ...f, emergencyContact: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label>Emergency Phone</Label>
-              <Input value={form.emergencyPhone} onChange={(e) => setForm(f => ({ ...f, emergencyPhone: e.target.value }))} />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={create.isPending} data-testid="button-submit-patient">{create.isPending ? "Registering..." : "Register"}</Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
+import { Plus, Search, User, GitFork } from "lucide-react";
 
 export default function Patients() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
 
   const { data: patients, isLoading } = useListPatients(
     debouncedSearch ? { search: debouncedSearch } : {},
@@ -120,7 +30,14 @@ export default function Patients() {
           <h1 className="text-2xl font-bold">Patients</h1>
           <p className="text-muted-foreground text-sm">Search and manage patient records</p>
         </div>
-        <RegisterPatientDialog onSuccess={() => queryClient.invalidateQueries({ queryKey: getListPatientsQueryKey() })} />
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setLocation("/workflow")}>
+            <GitFork className="h-4 w-4 mr-1" /> Workflow
+          </Button>
+          <Button data-testid="button-register-patient" onClick={() => setLocation("/patients/new")}>
+            <Plus className="h-4 w-4 mr-1" /> Register Patient
+          </Button>
+        </div>
       </div>
 
       <div className="relative max-w-sm">

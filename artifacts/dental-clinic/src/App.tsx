@@ -19,6 +19,8 @@ import FollowUps from "@/pages/followups";
 import Reports from "@/pages/reports";
 import Notifications from "@/pages/notifications";
 import AdminUsers from "@/pages/admin-users";
+import AddPatient from "@/pages/add-patient";
+import Workflow from "@/pages/workflow";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -46,7 +48,9 @@ function Router() {
       <Route path="/" component={() => <Redirect to="/dashboard" />} />
       <Route path="/dashboard" component={() => <ProtectedRoute component={Dashboard} />} />
       <Route path="/patients" component={() => <ProtectedRoute component={Patients} />} />
+      <Route path="/patients/new" component={() => <ProtectedRoute component={AddPatient} />} />
       <Route path="/patients/:id" component={() => <ProtectedRoute component={PatientDetail} />} />
+      <Route path="/workflow" component={() => <ProtectedRoute component={Workflow} />} />
       <Route path="/op-records" component={() => <ProtectedRoute component={OpRecords} />} />
       <Route path="/op-records/:id" component={() => <ProtectedRoute component={OpRecordDetail} />} />
       <Route path="/doctor-workspace" component={() => <ProtectedRoute component={DoctorWorkspace} />} />

@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Home, Users, FileText, ClipboardList, Activity, Stethoscope, LogOut,
-  FileBarChart, Receipt, Bell, Calendar, ShieldCheck
+  FileBarChart, Receipt, Bell, Calendar, ShieldCheck, GitFork
 } from "lucide-react";
 import { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: Home, roles: ["administrator", "receptionist", "doctor"] },
+  { label: "Patient Workflow", href: "/workflow", icon: GitFork, roles: ["administrator", "receptionist", "doctor"] },
   { label: "Patients", href: "/patients", icon: Users, roles: ["administrator", "receptionist", "doctor"] },
   { label: "OP Records", href: "/op-records", icon: FileText, roles: ["administrator", "receptionist", "doctor"] },
   { label: "Doctor Workspace", href: "/doctor-workspace", icon: Stethoscope, roles: ["doctor", "administrator"] },
