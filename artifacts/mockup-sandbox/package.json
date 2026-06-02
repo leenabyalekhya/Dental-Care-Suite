@@ -5,7 +5,6 @@
   "private": true,
   "scripts": {
     "dev": "vite dev",
-    "build": "node -e \"console.log('mockup-sandbox is dev-only, skipping production build')\"",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
